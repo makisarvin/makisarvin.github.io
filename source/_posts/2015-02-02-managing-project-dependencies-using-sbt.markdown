@@ -11,7 +11,9 @@ More and more projects nowdays are using the microservices concept. Instead of h
 Each project has the same settings and the same dependencies. Do we have to copy them over to each project? Is there a better way to manage those dependencies faster? Can we create a sbt plugin that has all the settings for us and use that?
 
 
-First lets see how we would go to solve this problem withough using a plugin. Normally we will start with seperating all the dependencies from the build.sbt. So lets create a simple project and start
+First lets see how we would go to solve this problem withough using a plugin. Normally we will start with seperating all the dependencies from the build.sbt. So lets create a simple project and start. 
+
+(The complete code can be found on [github](https://github.com/makisarvin/sbt-depedencies-plugin))
 
 We will use a spray application as our example, so lets go ahead and clone the spray starter template. 
 
