@@ -13,6 +13,8 @@ Each project has the same settings and the same dependencies. Do we have to copy
 
 First lets see how we would go to solve this problem withough using a plugin. Normally we will start with seperating all the dependencies from the build.sbt. So lets create a simple project and start. 
 
+<!--more-->
+
 (The complete code can be found on [github](https://github.com/makisarvin/sbt-depedencies-plugin))
 
 We will use a spray application as our example, so lets go ahead and clone the spray starter template. 
@@ -63,9 +65,6 @@ Now going back to `build.sbt` we change the `libraryDependencies` to :
 libraryDependencies ++= Dependencies.backendDeps
 {% endcodeblock %}
 
-We can do the same with every other setting, Put them in a Common.scala and import them as settings. 
-So an easy solution is to copy and paste the Dependecies.scala to each project, or better yet link this file from a central location. is this all?
-
 Well, if we look into the projects, we see that it's not only the library dependencies that need to be shared but various other settings. So lets move those settings into another common file. 
 
 	
@@ -102,10 +101,9 @@ Common.commonSettings
 libraryDependencies ++= Dependencies.backendDeps
 {% endcodeblock %}
 
-Now we have two files that need to shared each time, and as the project grows, more requirements increase the complexity. For example, what is we create new tasks or settings?
+Now we have two files that need to shared each time, and as the project grows, more requirements increase the complexity. For example, what if we create new tasks or settings?
 
-To improve upon our solution, we can try to create a plugin to keep all this information. 
-The end goeal will be that each project will use the plugin to manage their settings and dependencies. When we update the plugin all the project would get the new version, thus the new settings. 
+To improve upon our solution, we can try to create a plugin to keep all this information and use this plugin across our simular projects. When we want to update some settings or dependencies across all projects we will update the plugin all the project would get the new settings. 
 
 So lets create a new sbt plugin. 
 
