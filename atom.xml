@@ -4,7 +4,7 @@
   <title><![CDATA[Code Monkey]]></title>
   <link href="http://makisarvin.github.io/atom.xml" rel="self"/>
   <link href="http://makisarvin.github.io/"/>
-  <updated>2015-02-04T23:04:53+00:00</updated>
+  <updated>2015-02-10T15:29:05+00:00</updated>
   <id>http://makisarvin.github.io/</id>
   <author>
     <name><![CDATA[Makis Arvanitis]]></name>
@@ -23,6 +23,9 @@
 <p>Each project has the same settings and the same dependencies. Do we have to copy them over to each project? Is there a better way to manage those dependencies faster? Can we create a sbt plugin that has all the settings for us and use that?</p>
 
 <p>First lets see how we would go to solve this problem withough using a plugin. Normally we will start with seperating all the dependencies from the build.sbt. So lets create a simple project and start.</p>
+
+<!--more-->
+
 
 <p>(The complete code can be found on <a href="https://github.com/makisarvin/sbt-depedencies-plugin">github</a>)</p>
 
@@ -104,9 +107,6 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>We can do the same with every other setting, Put them in a Common.scala and import them as settings.
-So an easy solution is to copy and paste the Dependecies.scala to each project, or better yet link this file from a central location. is this all?</p>
-
 <p>Well, if we look into the projects, we see that it&rsquo;s not only the library dependencies that need to be shared but various other settings. So lets move those settings into another common file.</p>
 
 <figure class='code'><figcaption><span>project/Common.scala </span></figcaption>
@@ -169,10 +169,9 @@ So an easy solution is to copy and paste the Dependecies.scala to each project, 
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Now we have two files that need to shared each time, and as the project grows, more requirements increase the complexity. For example, what is we create new tasks or settings?</p>
+<p>Now we have two files that need to shared each time, and as the project grows, more requirements increase the complexity. For example, what if we create new tasks or settings?</p>
 
-<p>To improve upon our solution, we can try to create a plugin to keep all this information.
-The end goeal will be that each project will use the plugin to manage their settings and dependencies. When we update the plugin all the project would get the new version, thus the new settings.</p>
+<p>To improve upon our solution, we can try to create a plugin to keep all this information and use this plugin across our simular projects. When we want to update some settings or dependencies across all projects we will update the plugin all the project would get the new settings.</p>
 
 <p>So lets create a new sbt plugin.</p>
 
