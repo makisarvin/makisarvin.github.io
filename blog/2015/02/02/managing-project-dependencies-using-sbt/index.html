@@ -111,9 +111,6 @@
 
 <p>First lets see how we would go to solve this problem withough using a plugin. Normally we will start with seperating all the dependencies from the build.sbt. So lets create a simple project and start.</p>
 
-<!--more-->
-
-
 <p>(The complete code can be found on <a href="https://github.com/makisarvin/sbt-depedencies-plugin">github</a>)</p>
 
 <p>We will use a spray application as our example, so lets go ahead and clone the spray starter template.</p>
@@ -194,6 +191,9 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
+<p>We can do the same with every other setting, Put them in a Common.scala and import them as settings.
+So an easy solution is to copy and paste the Dependecies.scala to each project, or better yet link this file from a central location. is this all?</p>
+
 <p>Well, if we look into the projects, we see that it&rsquo;s not only the library dependencies that need to be shared but various other settings. So lets move those settings into another common file.</p>
 
 <figure class='code'><figcaption><span>project/Common.scala </span></figcaption>
@@ -256,9 +256,10 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Now we have two files that need to shared each time, and as the project grows, more requirements increase the complexity. For example, what if we create new tasks or settings?</p>
+<p>Now we have two files that need to shared each time, and as the project grows, more requirements increase the complexity. For example, what is we create new tasks or settings?</p>
 
-<p>To improve upon our solution, we can try to create a plugin to keep all this information and use this plugin across our simular projects. When we want to update some settings or dependencies across all projects we will update the plugin all the project would get the new settings.</p>
+<p>To improve upon our solution, we can try to create a plugin to keep all this information.
+The end goeal will be that each project will use the plugin to manage their settings and dependencies. When we update the plugin all the project would get the new version, thus the new settings.</p>
 
 <p>So lets create a new sbt plugin.</p>
 
@@ -603,8 +604,6 @@ Another important line is the <code>sbtPlugin := true</code> this denotes this p
   <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://makisarvin.github.io/blog/2015/02/02/managing-project-dependencies-using-sbt/" data-via="tellanius" data-counturl="http://makisarvin.github.io/blog/2015/02/02/managing-project-dependencies-using-sbt/" >Tweet</a>
   
   
-  <div class="g-plusone" data-size="medium"></div>
-  
   
 </div>
 
@@ -651,7 +650,7 @@ Another important line is the <code>sbtPlugin := true</code> this denotes this p
 
         github.showRepos({
             user: 'makisarvin',
-            count: 2,
+            count: 0,
             skip_forks: true,
             target: '#gh_repos'
         });
@@ -681,14 +680,6 @@ Another important line is the <code>sbtPlugin := true</code> this denotes this p
 
 
 
-
-  <script type="text/javascript">
-    (function() {
-      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
-      script.src = 'https://apis.google.com/js/plusone.js';
-      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
-    })();
-  </script>
 
 
 

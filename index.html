@@ -114,12 +114,468 @@
 
 <p>First lets see how we would go to solve this problem withough using a plugin. Normally we will start with seperating all the dependencies from the build.sbt. So lets create a simple project and start.</p>
 
+<p>(The complete code can be found on <a href="https://github.com/makisarvin/sbt-depedencies-plugin">github</a>)</p>
+
+<p>We will use a spray application as our example, so lets go ahead and clone the spray starter template.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>git clone https://github.com/spray/spray-template.git hello-spray</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As we can see all the dependencies are in <code>build.sbt</code> file.</p>
+
+<p>So first lets move the dependencies to another file are per suggestion of the <a href="http://www.scala-sbt.org/0.13/tutorial/Organizing-Build.html">sbt documentation</a>:</p>
+
+<figure class='code'><figcaption><span>project/Dependencies.scala </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'>    
+</span><span class='line'><span class="k">import</span> <span class="nn">sbt._</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">object</span> <span class="nc">Dependencies</span> <span class="o">{</span>
+</span><span class='line'>  <span class="c1">// Versions</span>
+</span><span class='line'>  <span class="k">lazy</span> <span class="k">val</span> <span class="n">akkaVersion</span> <span class="k">=</span> <span class="s">&quot;2.3.6&quot;</span>
+</span><span class='line'>  <span class="k">lazy</span> <span class="k">val</span> <span class="n">sprayVersion</span> <span class="k">=</span> <span class="s">&quot;1.3.2&quot;</span>
+</span><span class='line'>  <span class="k">lazy</span> <span class="k">val</span> <span class="n">speac2Version</span> <span class="k">=</span> <span class="s">&quot;2.3.11&quot;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Libraries</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">akkaActor</span> <span class="k">=</span> <span class="s">&quot;com.typesafe.akka&quot;</span> <span class="o">%%</span> <span class="s">&quot;akka-actor&quot;</span> <span class="o">%</span> <span class="n">akkaVersion</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">akkaTestKit</span> <span class="k">=</span> <span class="s">&quot;com.typesafe.akka&quot;</span> <span class="o">%%</span> <span class="s">&quot;akka-testkit&quot;</span> <span class="o">%</span> <span class="n">akkaVersion</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">sprayCan</span> <span class="k">=</span> <span class="s">&quot;io.spray&quot;</span> <span class="o">%%</span> <span class="s">&quot;spray-can&quot;</span> <span class="o">%</span> <span class="n">sprayVersion</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">sprayRouting</span> <span class="k">=</span> <span class="s">&quot;io.spray&quot;</span> <span class="o">%%</span> <span class="s">&quot;spray-routing&quot;</span> <span class="o">%</span> <span class="n">sprayVersion</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">sprayTestKit</span> <span class="k">=</span> <span class="s">&quot;io.spray&quot;</span> <span class="o">%%</span> <span class="s">&quot;spray-can&quot;</span> <span class="o">%</span> <span class="n">sprayVersion</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">specs2core</span> <span class="k">=</span> <span class="s">&quot;org.specs2&quot;</span> <span class="o">%%</span> <span class="s">&quot;specs2-core&quot;</span> <span class="o">%</span> <span class="n">speac2Version</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Projects</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">backendDeps</span> <span class="k">=</span> <span class="nc">Seq</span><span class="o">(</span>
+</span><span class='line'>      <span class="n">akkaActor</span><span class="o">,</span>
+</span><span class='line'>    <span class="n">sprayCan</span><span class="o">,</span>
+</span><span class='line'>    <span class="n">sprayRouting</span><span class="o">,</span>
+</span><span class='line'>    <span class="n">sprayTestKit</span> <span class="o">%</span> <span class="nc">Test</span><span class="o">,</span>
+</span><span class='line'>    <span class="n">akkaTestKit</span> <span class="o">%</span> <span class="nc">Test</span><span class="o">,</span>
+</span><span class='line'>    <span class="n">specs2core</span> <span class="o">%</span> <span class="nc">Test</span>
+</span><span class='line'>  <span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now going back to <code>build.sbt</code> we change the <code>libraryDependencies</code> to :</p>
+
+<figure class='code'><figcaption><span>build.sbt </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">libraryDependencies</span> <span class="o">++=</span> <span class="nc">Dependencies</span><span class="o">.</span><span class="n">backendDeps</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We can do the same with every other setting, Put them in a Common.scala and import them as settings.
+So an easy solution is to copy and paste the Dependecies.scala to each project, or better yet link this file from a central location. is this all?</p>
+
+<p>Well, if we look into the projects, we see that it&rsquo;s not only the library dependencies that need to be shared but various other settings. So lets move those settings into another common file.</p>
+
+<figure class='code'><figcaption><span>project/Common.scala </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">import</span> <span class="nn">sbt._</span>
+</span><span class='line'><span class="k">import</span> <span class="nn">sbt.Keys._</span>
+</span><span class='line'><span class="k">import</span> <span class="nn">spray.revolver.RevolverPlugin.Revolver</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">object</span> <span class="nc">CommonSettings</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">val</span> <span class="n">commonSettings</span> <span class="k">=</span> <span class="nc">Revolver</span><span class="o">.</span><span class="n">settings</span> <span class="o">++</span>
+</span><span class='line'>    <span class="nc">List</span><span class="o">(</span>
+</span><span class='line'>      <span class="c1">// Core settings</span>
+</span><span class='line'>      <span class="n">organization</span> <span class="o">:=</span> <span class="s">&quot;com.example&quot;</span><span class="o">,</span>
+</span><span class='line'>      <span class="n">version</span> <span class="o">:=</span> <span class="s">&quot;0.1&quot;</span><span class="o">,</span>
+</span><span class='line'>      <span class="n">scalaVersion</span> <span class="o">:=</span> <span class="s">&quot;2.11.2&quot;</span><span class="o">,</span>
+</span><span class='line'>      <span class="n">scalacOptions</span> <span class="o">++=</span> <span class="nc">List</span><span class="o">(</span>
+</span><span class='line'>        <span class="s">&quot;-unchecked&quot;</span><span class="o">,</span>
+</span><span class='line'>        <span class="s">&quot;-deprecation&quot;</span><span class="o">,</span>
+</span><span class='line'>        <span class="s">&quot;-language:_&quot;</span><span class="o">,</span>
+</span><span class='line'>        <span class="s">&quot;-encoding&quot;</span><span class="o">,</span> <span class="s">&quot;UTF-8&quot;</span>
+</span><span class='line'>      <span class="o">)</span>
+</span><span class='line'>    <span class="o">)</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and build.sbt will change into:</p>
+
+<figure class='code'><figcaption><span>build.sbt </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">name</span>  <span class="o">:=</span> <span class="s">&quot;hello-spray&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nc">Common</span><span class="o">.</span><span class="n">commonSettings</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">libraryDependencies</span> <span class="o">++=</span> <span class="nc">Dependencies</span><span class="o">.</span><span class="n">backendDeps</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now we have two files that need to shared each time, and as the project grows, more requirements increase the complexity. For example, what is we create new tasks or settings?</p>
+
+<p>To improve upon our solution, we can try to create a plugin to keep all this information.
+The end goeal will be that each project will use the plugin to manage their settings and dependencies. When we update the plugin all the project would get the new version, thus the new settings.</p>
+
+<p>So lets create a new sbt plugin.</p>
+
+<p>A sbt plugin has the same structure with a scala project. So lets create a new sbt project.</p>
+
+<p>Open <code>build.sbt</code> and enter the following code:</p>
+
+<figure class='code'><figcaption><span>build.sbt </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">version</span> <span class="o">:=</span> <span class="s">&quot;1.0&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">sbtPlugin</span> <span class="o">:=</span> <span class="kc">true</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">organization</span> <span class="o">:=</span> <span class="s">&quot;com.example&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">name</span> <span class="o">:=</span> <span class="s">&quot;myplugin&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">resolvers</span> <span class="n">in</span> <span class="nc">ThisBuild</span> <span class="o">++=</span> <span class="nc">Seq</span> <span class="o">(</span>
+</span><span class='line'>  <span class="s">&quot;ReactiveCouchbase Snapshots&quot;</span> <span class="n">at</span> <span class="s">&quot;https://raw.github.com/ReactiveCouchbase/repository/master/snapshots/&quot;</span><span class="o">,</span>
+</span><span class='line'>  <span class="s">&quot;Typesafe Releases&quot;</span> <span class="n">at</span> <span class="s">&quot;http://repo.typesafe.com/typesafe/releases/&quot;</span>
+</span><span class='line'><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">addSbtPlugin</span><span class="o">(</span><span class="s">&quot;com.typesafe.sbt&quot;</span> <span class="o">%</span> <span class="s">&quot;sbt-scalariform&quot;</span> <span class="o">%</span> <span class="s">&quot;1.3.0&quot;</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">addSbtPlugin</span><span class="o">(</span><span class="s">&quot;io.spray&quot;</span> <span class="o">%</span> <span class="s">&quot;sbt-revolver&quot;</span> <span class="o">%</span> <span class="s">&quot;0.7.2&quot;</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">addSbtPlugin</span><span class="o">(</span><span class="s">&quot;com.eed3si9n&quot;</span> <span class="o">%</span> <span class="s">&quot;sbt-assembly&quot;</span> <span class="o">%</span> <span class="s">&quot;0.12.0&quot;</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So our plugin will do three things:</p>
+
+<ul>
+<li>Manage the settings for all our projects</li>
+<li>Manage the library dependencies for all our projects</li>
+<li>Manage the plugins that our projects are using.</li>
+</ul>
+
+
+<p>Because this is a plugin we add the plugins we will expose to project in the <code>build.sbt</code> and not in the <code>plugins.sbt</code> file.
+Another important line is the <code>sbtPlugin := true</code> this denotes this project as a plugin project.</p>
+
+<p>Now lets add our code.</p>
+
+<figure class='code'><figcaption><span>src/main/scala/Library.scala </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">package</span> <span class="nn">myplugin</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">import</span> <span class="nn">sbt._</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">object</span> <span class="nc">Version</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">val</span> <span class="n">projectVersion</span> <span class="k">=</span> <span class="s">&quot;1.0.0&quot;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">val</span> <span class="n">akka</span> <span class="k">=</span> <span class="s">&quot;2.3.8&quot;</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">logback</span> <span class="k">=</span> <span class="s">&quot;1.1.2&quot;</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">scala</span> <span class="k">=</span> <span class="s">&quot;2.11.4&quot;</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">scalaParsers</span> <span class="k">=</span> <span class="s">&quot;1.0.1&quot;</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">spray</span> <span class="k">=</span> <span class="s">&quot;1.3.2&quot;</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">scalaLogging</span> <span class="k">=</span> <span class="s">&quot;3.1.0&quot;</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">scalaTest</span> <span class="k">=</span> <span class="s">&quot;2.2.0&quot;</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">specs2</span> <span class="k">=</span> <span class="s">&quot;2.3.11&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">object</span> <span class="nc">Library</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">akkaActor</span> <span class="k">=</span> <span class="s">&quot;com.typesafe.akka&quot;</span> <span class="o">%%</span> <span class="s">&quot;akka-actor&quot;</span> <span class="o">%</span> <span class="nc">Version</span><span class="o">.</span><span class="n">akka</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">akkaCluster</span> <span class="k">=</span> <span class="s">&quot;com.typesafe.akka&quot;</span> <span class="o">%%</span> <span class="s">&quot;akka-cluster&quot;</span> <span class="o">%</span> <span class="nc">Version</span><span class="o">.</span><span class="n">akka</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">akkaContrib</span> <span class="k">=</span> <span class="s">&quot;com.typesafe.akka&quot;</span> <span class="o">%%</span> <span class="s">&quot;akka-contrib&quot;</span> <span class="o">%</span> <span class="nc">Version</span><span class="o">.</span><span class="n">akka</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">akkaPersistence</span> <span class="k">=</span> <span class="s">&quot;com.typesafe.akka&quot;</span> <span class="o">%%</span> <span class="s">&quot;akka-persistence-experimental&quot;</span> <span class="o">%</span> <span class="nc">Version</span><span class="o">.</span><span class="n">akka</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">akkaSlf4j</span> <span class="k">=</span> <span class="s">&quot;com.typesafe.akka&quot;</span> <span class="o">%%</span> <span class="s">&quot;akka-slf4j&quot;</span> <span class="o">%</span> <span class="nc">Version</span><span class="o">.</span><span class="n">akka</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">sprayRouting</span> <span class="k">=</span> <span class="s">&quot;io.spray&quot;</span> <span class="o">%%</span> <span class="s">&quot;spray-routing&quot;</span> <span class="o">%</span> <span class="nc">Version</span><span class="o">.</span><span class="n">spray</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">sprayCan</span> <span class="k">=</span> <span class="s">&quot;io.spray&quot;</span> <span class="o">%%</span> <span class="s">&quot;spray-can&quot;</span> <span class="o">%</span> <span class="nc">Version</span><span class="o">.</span><span class="n">spray</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">sprayTestKit</span> <span class="k">=</span> <span class="s">&quot;io.spray&quot;</span> <span class="o">%%</span> <span class="s">&quot;spray-testkit&quot;</span> <span class="o">%</span> <span class="nc">Version</span><span class="o">.</span><span class="n">spray</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">akkaTestkit</span> <span class="k">=</span> <span class="s">&quot;com.typesafe.akka&quot;</span> <span class="o">%%</span> <span class="s">&quot;akka-testkit&quot;</span> <span class="o">%</span> <span class="nc">Version</span><span class="o">.</span><span class="n">akka</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">logbackClassic</span> <span class="k">=</span> <span class="s">&quot;ch.qos.logback&quot;</span> <span class="o">%</span> <span class="s">&quot;logback-classic&quot;</span> <span class="o">%</span> <span class="nc">Version</span><span class="o">.</span><span class="n">logback</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">scalaLogging</span> <span class="k">=</span> <span class="s">&quot;com.typesafe.scala-logging&quot;</span> <span class="o">%%</span> <span class="s">&quot;scala-logging&quot;</span> <span class="o">%</span> <span class="nc">Version</span><span class="o">.</span><span class="n">scalaLogging</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">scalaParsers</span> <span class="k">=</span> <span class="s">&quot;org.scala-lang.modules&quot;</span> <span class="o">%%</span> <span class="s">&quot;scala-parser-combinators&quot;</span> <span class="o">%</span> <span class="nc">Version</span><span class="o">.</span><span class="n">scalaParsers</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">scalaTest</span> <span class="k">=</span> <span class="s">&quot;org.scalatest&quot;</span> <span class="o">%%</span> <span class="s">&quot;scalatest&quot;</span> <span class="o">%</span> <span class="nc">Version</span><span class="o">.</span><span class="n">scalaTest</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">specs2</span> <span class="k">=</span> <span class="s">&quot;org.specs2&quot;</span> <span class="o">%%</span> <span class="s">&quot;specs2-core&quot;</span> <span class="o">%</span> <span class="nc">Version</span><span class="o">.</span><span class="n">specs2</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We splitted the dependency object we created before to Version and Library and added a few more libraries.</p>
+
+<p>What we need now is an object that will hold our settings. The projects settings can be split logicaly into the following categories:</p>
+
+<ul>
+<li>Project settings like organization, plugin settings etc</li>
+<li>libraryDependencies.</li>
+<li>Resolvers</li>
+</ul>
+
+
+<p>So lets create an object that has those three categories</p>
+
+<figure class='code'><figcaption><span>src/main/scala/CommonSettings.scala </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">package</span> <span class="nn">myplugin</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">import</span> <span class="nn">com.typesafe.sbt.SbtScalariform._</span>
+</span><span class='line'><span class="k">import</span> <span class="nn">sbt.Keys._</span>
+</span><span class='line'><span class="k">import</span> <span class="nn">sbt._</span>
+</span><span class='line'><span class="k">import</span> <span class="nn">spray.revolver.RevolverPlugin.Revolver</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">import</span> <span class="nn">scalariform.formatter.preferences.</span><span class="o">{</span><span class="nc">PreserveDanglingCloseParenthesis</span><span class="o">,</span> <span class="nc">DoubleIndentClassDeclaration</span><span class="o">,</span> <span class="nc">AlignSingleLineCaseStatements</span><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">object</span> <span class="nc">CommonSettings</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">commonSettings</span> <span class="k">=</span>
+</span><span class='line'>    <span class="n">scalariformSettings</span> <span class="o">++</span> <span class="nc">Revolver</span><span class="o">.</span><span class="n">settings</span> <span class="o">++</span>
+</span><span class='line'>      <span class="nc">List</span><span class="o">(</span>
+</span><span class='line'>        <span class="c1">// Core settings</span>
+</span><span class='line'>        <span class="n">organization</span> <span class="o">:=</span> <span class="s">&quot;com.hotelier.frontdesk&quot;</span><span class="o">,</span>
+</span><span class='line'>        <span class="n">version</span> <span class="o">:=</span> <span class="nc">Version</span><span class="o">.</span><span class="n">projectVersion</span><span class="o">,</span>
+</span><span class='line'>        <span class="n">scalaVersion</span> <span class="o">:=</span> <span class="nc">Version</span><span class="o">.</span><span class="n">scala</span><span class="o">,</span>
+</span><span class='line'>        <span class="n">scalacOptions</span> <span class="o">++=</span> <span class="nc">List</span><span class="o">(</span>
+</span><span class='line'>          <span class="s">&quot;-unchecked&quot;</span><span class="o">,</span>
+</span><span class='line'>          <span class="s">&quot;-deprecation&quot;</span><span class="o">,</span>
+</span><span class='line'>          <span class="s">&quot;-language:_&quot;</span><span class="o">,</span>
+</span><span class='line'>          <span class="s">&quot;-encoding&quot;</span><span class="o">,</span> <span class="s">&quot;UTF-8&quot;</span>
+</span><span class='line'>        <span class="o">),</span>
+</span><span class='line'>        <span class="c1">// Scalariform settings</span>
+</span><span class='line'>        <span class="nc">ScalariformKeys</span><span class="o">.</span><span class="n">preferences</span> <span class="o">:=</span> <span class="nc">ScalariformKeys</span><span class="o">.</span><span class="n">preferences</span><span class="o">.</span><span class="n">value</span>
+</span><span class='line'>          <span class="o">.</span><span class="n">setPreference</span><span class="o">(</span><span class="nc">AlignSingleLineCaseStatements</span><span class="o">,</span> <span class="kc">true</span><span class="o">)</span>
+</span><span class='line'>          <span class="o">.</span><span class="n">setPreference</span><span class="o">(</span><span class="nc">AlignSingleLineCaseStatements</span><span class="o">.</span><span class="nc">MaxArrowIndent</span><span class="o">,</span> <span class="mi">100</span><span class="o">)</span>
+</span><span class='line'>          <span class="o">.</span><span class="n">setPreference</span><span class="o">(</span><span class="nc">DoubleIndentClassDeclaration</span><span class="o">,</span> <span class="kc">true</span><span class="o">)</span>
+</span><span class='line'>          <span class="o">.</span><span class="n">setPreference</span><span class="o">(</span><span class="nc">PreserveDanglingCloseParenthesis</span><span class="o">,</span> <span class="kc">true</span><span class="o">)</span>
+</span><span class='line'>      <span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">import</span> <span class="nn">Library._</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">val</span> <span class="n">commonLibraryDependencies</span><span class="k">:</span> <span class="kt">Seq</span><span class="o">[</span><span class="kt">ModuleID</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Seq</span><span class="o">(</span>
+</span><span class='line'>    <span class="n">sprayCan</span><span class="o">,</span>
+</span><span class='line'>    <span class="n">sprayRouting</span><span class="o">,</span>
+</span><span class='line'>    <span class="n">akkaActor</span><span class="o">,</span>
+</span><span class='line'>    <span class="n">akkaSlf4j</span><span class="o">,</span>
+</span><span class='line'>    <span class="n">sprayTestKit</span> <span class="o">%</span> <span class="s">&quot;test&quot;</span><span class="o">,</span>
+</span><span class='line'>    <span class="n">akkaTestkit</span> <span class="o">%</span> <span class="s">&quot;test&quot;</span><span class="o">,</span>
+</span><span class='line'>    <span class="n">specs2</span> <span class="o">%</span> <span class="s">&quot;test&quot;</span>
+</span><span class='line'>  <span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">val</span> <span class="n">commonResolvers</span><span class="k">:</span> <span class="kt">Seq</span><span class="o">[</span><span class="kt">MavenRepository</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Seq</span><span class="o">(</span>
+</span><span class='line'>    <span class="s">&quot;ReactiveCouchbase Snapshots&quot;</span> <span class="n">at</span> <span class="s">&quot;https://raw.github.com/ReactiveCouchbase/repository/master/snapshots/&quot;</span><span class="o">,</span>
+</span><span class='line'>    <span class="s">&quot;Typesafe Releases&quot;</span> <span class="n">at</span> <span class="s">&quot;http://repo.typesafe.com/typesafe/releases/&quot;</span>
+</span><span class='line'>  <span class="o">)</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So now we have a <code>CommonSettings</code> object with three vals that define all our settings.</p>
+
+<p>Finally we need to create our plugin:</p>
+
+<figure class='code'><figcaption><span>src/main/scala/CommonProjectSettings.scala </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">package</span> <span class="nn">myplugin</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">import</span> <span class="nn">sbt.Keys._</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">object</span> <span class="nc">CommonProjectSettings</span> <span class="k">extends</span> <span class="n">sbt</span><span class="o">.</span><span class="nc">AutoPlugin</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">import</span> <span class="nn">CommonSettings._</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">override</span> <span class="k">def</span> <span class="n">projectSettings</span> <span class="k">=</span>
+</span><span class='line'>    <span class="n">commonSettings</span> <span class="o">++</span> <span class="nc">Seq</span><span class="o">(</span><span class="n">libraryDependencies</span> <span class="o">++=</span> <span class="n">commonLibraryDependencies</span><span class="o">)</span> <span class="o">++</span> <span class="nc">Seq</span><span class="o">(</span><span class="n">resolvers</span> <span class="o">++=</span> <span class="n">commonResolvers</span><span class="o">)</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Thats it. the only think we had to do was add our settings into the projectSettings by overriding the method.</p>
+
+<p>now we need to build and publish our plugin:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sbt compile, publish-local</span></code></pre></td></tr></table></div></figure>
+
+
+<p>going back to our project, open <code>project/plugins.sbt</code>, delete everything and add the following line:</p>
+
+<figure class='code'><figcaption><span>project/plugins.sbt </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">addSbtPlugin</span><span class="o">(</span><span class="s">&quot;com.example&quot;</span> <span class="o">%</span> <span class="s">&quot;myplugin&quot;</span> <span class="o">%</span> <span class="s">&quot;1.0&quot;</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now go to <code>build.sbt</code> and replace the contents with:</p>
+
+<figure class='code'><figcaption><span>build.sbt </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">name</span> <span class="o">:=</span> <span class="s">&quot;hello-spray&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">enablePlugins</span><span class="o">(</span><span class="nc">CommonProjectSettings</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Thats it. if you compile the project everything will work as before. What about if you want to change a setting for a single project? You can override whatever setting you want in the project&rsquo;s <code>build.sbt</code>, for example try ot override the version: <code>version := 2.0</code> and see that it works.</p>
 </div>
   
-  
-    <footer>
-      <a rel="full-article" href="/blog/2015/02/02/managing-project-dependencies-using-sbt/">Read on &rarr;</a>
-    </footer>
   
 
 
@@ -164,7 +620,7 @@
 
         github.showRepos({
             user: 'makisarvin',
-            count: 2,
+            count: 0,
             skip_forks: true,
             target: '#gh_repos'
         });
@@ -190,30 +646,9 @@
 </footer>
   
 
-<script type="text/javascript">
-      var disqus_shortname = 'makisarvin';
-      
-        
-        var disqus_script = 'count.js';
-      
-    (function () {
-      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    }());
-</script>
 
 
 
-
-
-  <script type="text/javascript">
-    (function() {
-      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
-      script.src = 'https://apis.google.com/js/plusone.js';
-      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
-    })();
-  </script>
 
 
 
